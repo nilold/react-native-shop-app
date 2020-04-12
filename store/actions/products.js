@@ -8,10 +8,10 @@ export const GET_PRODUCTS = 'GET_PRODUCTS';
 
 export const fetchProducts = () => {
     return async dispatch => {
-        try{
+        try {
             const response = await fetch("https://playground-rn-shop-app.firebaseio.com/products.json")
 
-            if(!response.ok){
+            if (!response.ok) {
                 throw new Error("Something went wrong when fetching products from firebase")
             }
 
@@ -28,7 +28,7 @@ export const fetchProducts = () => {
                 ))
             }
             dispatch({type: GET_PRODUCTS, products: loadedProducts})
-        }catch(err){
+        } catch (err) {
             throw err;
         }
 
@@ -36,7 +36,18 @@ export const fetchProducts = () => {
 }
 
 export const deleteProduct = productId => {
-    return {type: DELETE_PRODUCT, pid: productId};
+    return async dispatch => {
+        const response = await fetch(`https://playground-rn-shop-app.firebaseio.com/products/${productId}.json`, {
+            method: "DELETE"
+        })
+
+        if (!response.ok) {
+            throw new Error("Something went wrong! Try again.")
+        }
+
+        return {type: DELETE_PRODUCT, pid: productId};
+    }
+
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
@@ -75,13 +86,27 @@ export const createProduct = (title, description, imageUrl, price) => {
 };
 
 export const updateProduct = (id, title, description, imageUrl) => {
-    return {
-        type: UPDATE_PRODUCT,
-        pid: id,
-        productData: {
-            title,
-            description,
-            imageUrl,
+    return async dispatch => {
+        const response = await fetch(`https://playground-rn-shop-app.firebaseio.com/products/${id}.json`, {
+            method: "PATCH",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({title, description, imageUrl})
+        })
+
+        if (!response.ok) {
+            throw new Error("Something went wrong! Try again.")
         }
-    };
+
+        dispatch({
+            type: UPDATE_PRODUCT,
+            pid: id,
+            productData: {
+                title,
+                description,
+                imageUrl,
+            }
+        });
+    }
 };
