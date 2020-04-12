@@ -8,7 +8,6 @@ import {
     TouchableNativeFeedback,
     Platform
 } from 'react-native';
-
 import Card from '../UI/Card';
 
 const ProductItem = props => {
