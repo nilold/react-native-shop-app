@@ -8,6 +8,7 @@ import HeaderButton from '../../components/UI/HeaderButton';
 import ProductItem from '../../components/shop/ProductItem';
 import * as cartActions from '../../store/actions/cart';
 import Colors from '../../constants/Colors';
+import LoadingSpinner from "../../components/UI/LoadingSpinner";
 
 
 const ProductsOverviewScreen = props => {
@@ -61,11 +62,7 @@ const ProductsOverviewScreen = props => {
     }
 
     if (isLoading) {
-        return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color={Colors.primary}/>
-            </View>
-        )
+        return <LoadingSpinner/>
     }
 
     return (

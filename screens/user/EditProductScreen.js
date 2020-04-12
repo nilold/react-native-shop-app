@@ -14,6 +14,7 @@ import HeaderButton from '../../components/UI/HeaderButton';
 import Input from "../../components/UI/Input";
 import * as productsActions from '../../store/actions/products';
 import Colors from "../../constants/Colors";
+import LoadingSpinner from "../../components/UI/LoadingSpinner";
 
 const FORM_UPDATE = "UPDATE";
 
@@ -117,12 +118,9 @@ const EditProductScreen = props => {
         [dispatchFormState],
     );
 
-    if(isLoading){
-        return (
-            <View style={styles.centered}><ActivityIndicator size={'large'} color={Colors.primary}/></View>
-        )
+    if (isLoading) {
+        return <LoadingSpinner/>
     }
-
 
     return (
         <KeyboardAvoidingView style={{flex: 1}} behavior="padding" keyboardVerticalOffset={150}>
