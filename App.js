@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
-import {createStore, combineReducers} from 'redux';
+import {createStore, combineReducers, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
+import ReduxThunk from 'redux-thunk';
 import {AppLoading} from 'expo';
-import { useFonts } from '@use-expo/font';
-import * as Font from 'expo-font';
+import {useFonts} from '@use-expo/font';
+
 
 import productsReducer from './store/reducers/products';
 import cartReducer from './store/reducers/cart';
@@ -16,17 +17,9 @@ const rootReducer = combineReducers({
     orders: ordersReducer
 });
 
-const store = createStore(rootReducer);
-
-// const fetchFonts = () => {
-//     return Font.loadAsync({
-//         'open-sans': require('./assets/fonts/OpenSans-Regular.ttf'),
-//         'open-sans-bold': require('./assets/fonts/OpenSans-Bold.ttf')
-//     });
-// };
+const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 export default function App() {
-    // const [fontsLoaded, setFontsLoaded] = useState(false);
 
     let [fontsLoaded] = useFonts({
         'open-sans': require('./assets/fonts/OpenSans-Regular.ttf'),
@@ -34,22 +27,8 @@ export default function App() {
     });
 
     if (!fontsLoaded) {
-      console.log("------------------------------------")
-      console.log("Font not loaded, returning...")
-        return <AppLoading />
-        // return (
-        //     <AppLoading
-        //         startAsync={fetchFonts}
-        //         onFinish={() => {
-        //             setFontsLoaded(true);
-        //         }}
-        //         onError={console.warn}
-        //     />
-        // );
+        return <AppLoading/>
     }
-
-  console.log("------------------------------------")
-  console.log("Font LOADED!!!!!, rendering components...")
 
     return (
         <Provider store={store}>
