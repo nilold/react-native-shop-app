@@ -67,14 +67,13 @@ const AuthScreen = props => {
         const action = isSignUp ? signUp : signIn
         setIsLoading(true)
         setError(null)
-
         try {
             await dispatch(action(formState.inputValues.email, formState.inputValues.password))
+            props.navigation.navigate('Shop')
         } catch (e) {
             setError(e.message)
+            setIsLoading(false)
         }
-
-        setIsLoading(false)
     }
 
     const inputChangeHandler = useCallback(

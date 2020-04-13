@@ -4,9 +4,10 @@ export const ADD_ORDER = 'ADD_ORDER';
 export const GET_ORDER = 'GET_ORDER';
 
 export const getOrders = () => {
-    return async dispatch => {
+    return async (dispatch, getState) => {
+        const {token, userId} = getState().auth
         try {
-            const response = await fetch("https://playground-rn-shop-app.firebaseio.com/orders/u1.json")
+            const response = await fetch(`https://playground-rn-shop-app.firebaseio.com/orders/${userId}.json?auth=${token}`)
 
             if (!response.ok) {
                 throw new Error("Something went wrong when fetching products from firebase")
@@ -25,9 +26,10 @@ export const getOrders = () => {
 }
 
 export const addOrder = (cartItems, totalAmount) => {
-    return async dispatch => {
+    return async (dispatch, getState) => {
+        const {token, userId} = getState().auth
         const date = new Date();
-        const response = await fetch("https://playground-rn-shop-app.firebaseio.com/orders/u1.json", {
+        const response = await fetch(`https://playground-rn-shop-app.firebaseio.com/orders/${userId}.json?auth=${token}`, {
             method: "POST",
             headers: {
                 "Content-type": "application/json"

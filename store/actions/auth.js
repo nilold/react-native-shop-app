@@ -1,6 +1,49 @@
-export const SIGN_UP = 'SIGN_UP';
-export const SIGN_IN = 'SIGN_IN';
+import {AsyncStorage} from 'react-native'
 
+export const AUTHENTICATE = 'AUTHENTICATE';
+export const LOGOUT = 'LOGOUT';
+
+let timer;
+
+
+const saveUserDataToStorage = (token, userId, expDate) => {
+    AsyncStorage.setItem("userData", JSON.stringify({token, userId, expDate: expDate.toISOString()}))
+}
+
+export const authenticate = (userId, token, expTime) => {
+    return dispatch => {
+        dispatch(setLogoutTime(expTime))
+        dispatch({type: AUTHENTICATE, userId: userId, token: token})
+    }
+}
+
+export const logout = () => {
+    clearLogoutTimer()
+    AsyncStorage.removeItem("userData");
+    return {type: LOGOUT};
+}
+
+const clearLogoutTimer = () => {
+    if (timer) {
+        clearTimeout(timer);
+    }
+}
+
+const setLogoutTime = expTime => {
+    return dispatch => {
+        timer = setTimeout(() => {
+            dispatch(logout())
+        }, expTime)
+    }
+}
+
+const dispatchAuthentication = (dispatch, data) => {
+    const expInMs = parseInt(data.expiresIn) * 1000
+    const expDate = new Date(new Date().getTime() + expInMs)
+
+    dispatch(authenticate(data.localId, data.idToken, expInMs))
+    saveUserDataToStorage(data.idToken, data.localId, expDate)
+}
 
 export const signUp = (email, password) => {
     return async dispatch => {
@@ -15,7 +58,7 @@ export const signUp = (email, password) => {
         if (!response.ok) {
             const errorId = data.error.message;
             let message = errorId
-            switch(errorId){
+            switch (errorId) {
                 case 'EMAIL_EXISTS':
                     message = "This email is already registered";
                     break
@@ -30,7 +73,7 @@ export const signUp = (email, password) => {
             throw new Error(message)
         }
 
-        dispatch({type: SIGN_UP})
+        dispatchAuthentication(dispatch, data);
     }
 }
 
@@ -48,7 +91,7 @@ export const signIn = (email, password) => {
         if (!response.ok) {
             const errorId = data.error.message;
             let message = errorId
-            switch(errorId){
+            switch (errorId) {
                 case 'EMAIL_NOT_FOUND':
                     message = "User not found";
                     break
@@ -63,6 +106,6 @@ export const signIn = (email, password) => {
             throw new Error(message)
         }
 
-        dispatch({type: SIGN_IN})
+        dispatchAuthentication(dispatch, data);
     }
 }

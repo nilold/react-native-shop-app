@@ -7,9 +7,10 @@ export const GET_PRODUCTS = 'GET_PRODUCTS';
 
 
 export const fetchProducts = () => {
-    return async dispatch => {
+    return async (dispatch, getState) => {
+        const {token, userId} = getState().auth
         try {
-            const response = await fetch("https://playground-rn-shop-app.firebaseio.com/products.json")
+            const response = await fetch(`https://playground-rn-shop-app.firebaseio.com/products.json?auth=${token}`)
 
             if (!response.ok) {
                 throw new Error("Something went wrong when fetching products from firebase")
@@ -20,14 +21,18 @@ export const fetchProducts = () => {
             for (const key in data) {
                 loadedProducts.push(new Product(
                     id = key,
-                    "u1",
+                    data[key].ownerId,
                     data[key].title,
                     data[key].imageUrl,
                     data[key].description,
                     data[key].price
                 ))
             }
-            dispatch({type: GET_PRODUCTS, products: loadedProducts})
+            dispatch({
+                type: GET_PRODUCTS,
+                products: loadedProducts,
+                userProducts: loadedProducts.filter(p => p.ownerId === userId)
+            })
         } catch (err) {
             throw err;
         }
@@ -36,8 +41,9 @@ export const fetchProducts = () => {
 }
 
 export const deleteProduct = productId => {
-    return async dispatch => {
-        const response = await fetch(`https://playground-rn-shop-app.firebaseio.com/products/${productId}.json`, {
+    return async (dispatch, getState) => {
+        const token = getState().auth.token
+        const response = await fetch(`https://playground-rn-shop-app.firebaseio.com/products/${productId}.json?auth=${token}`, {
             method: "DELETE"
         })
 
@@ -51,13 +57,14 @@ export const deleteProduct = productId => {
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
-    return async dispatch => {
-        const response = await fetch("https://playground-rn-shop-app.firebaseio.com/products.json", {
+    return async (dispatch, getState) => {
+        const {token, userId} = getState().auth
+        const response = await fetch(`https://playground-rn-shop-app.firebaseio.com/products.json?auth=${token}`, {
             method: "POST",
             headers: {
                 "Content-type": "application/json"
             },
-            body: JSON.stringify({title, description, imageUrl, price})
+            body: JSON.stringify({title, description, imageUrl, price, ownerId: userId})
         })
         dispatch({
             type: CREATE_PRODUCT,
@@ -65,7 +72,8 @@ export const createProduct = (title, description, imageUrl, price) => {
                 title,
                 description,
                 imageUrl,
-                price
+                price,
+                ownerId: userId
             }
         });
 
@@ -78,7 +86,8 @@ export const createProduct = (title, description, imageUrl, price) => {
                 title,
                 description,
                 imageUrl,
-                price
+                price,
+                ownerId: userId
             }
         })
     }
@@ -86,8 +95,9 @@ export const createProduct = (title, description, imageUrl, price) => {
 };
 
 export const updateProduct = (id, title, description, imageUrl) => {
-    return async dispatch => {
-        const response = await fetch(`https://playground-rn-shop-app.firebaseio.com/products/${id}.json`, {
+    return async (dispatch, getState) => {
+        const token = getState().auth.token
+        const response = await fetch(`https://playground-rn-shop-app.firebaseio.com/products/${id}.json?auth=${token}`, {
             method: "PATCH",
             headers: {
                 "Content-type": "application/json"

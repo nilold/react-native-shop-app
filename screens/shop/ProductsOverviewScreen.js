@@ -38,9 +38,10 @@ const ProductsOverviewScreen = props => {
     }, [loadProducts]);
 
 
-    useEffect(async () => {
+    useEffect( () => {
         setIsLoading(true)
-        await loadProducts();
+        const loadAsync = async () => {await loadProducts()};
+        loadAsync()
         setIsLoading(false)
     }, [dispatch]);
 
